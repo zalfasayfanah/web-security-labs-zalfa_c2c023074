@@ -1,0 +1,374 @@
+# 🛡️ Virtual Security Lab - Praktikum Keamanan Data
+
+Platform pembelajaran interaktif untuk memahami 4 vulnerability web security paling umum: SQL Injection, XSS, File Upload Vulnerability, dan Broken Access Control (IDOR).
+
+## 📋 Daftar Isi
+
+- [Fitur](#fitur)
+- [Persyaratan](#persyaratan)
+- [Instalasi](#instalasi)
+- [Struktur Folder](#struktur-folder)
+- [Penggunaan](#penggunaan)
+- [Troubleshooting](#troubleshooting)
+- [Keamanan](#keamanan)
+- [Lisensi](#lisensi)
+
+---
+
+## ✨ Fitur
+
+### 1. 🗄️ SQL Injection Lab
+- **Vulnerable Version**: String concatenation langsung
+- **Safe Version**: Prepared statements dengan PDO
+- **Demo**: Bypass authentication dengan payload SQL injection
+- **Learning**: Prepared statements, parameter binding, password hashing
+
+### 2. 💻 Cross-Site Scripting (XSS) Lab
+- **Vulnerable Version**: Output tanpa sanitasi
+- **Safe Version**: htmlspecialchars() encoding
+- **Demo**: Stored XSS dengan berbagai payload
+- **Learning**: Output encoding, Content Security Policy, HttpOnly cookies
+
+### 3. 📤 File Upload Vulnerability Lab
+- **Vulnerable Version**: Upload tanpa validasi
+- **Safe Version**: Whitelist extension, MIME type validation, UUID rename
+- **Demo**: Upload web shell dan file berbahaya
+- **Learning**: Extension whitelist, file validation, secure storage
+
+### 4. 🔒 Broken Access Control (IDOR) Lab
+- **Vulnerable Version**: Tidak ada validasi ownership
+- **Safe Version**: Server-side authorization check
+- **Demo**: Akses data user lain dengan mengubah ID di URL
+- **Learning**: Ownership validation, UUID, token authorization, RBAC
+
+---
+
+## 📦 Persyaratan
+
+- **Web Server**: XAMPP, WAMP, LAMP, atau Laragon
+- **PHP**: Versi 7.4 atau lebih baru
+- **MySQL/MariaDB**: Versi 5.7 atau lebih baru
+- **Browser**: Chrome, Firefox, Edge (versi terbaru)
+
+---
+
+## 🚀 Instalasi
+
+### Langkah 1: Install XAMPP
+
+1. Download XAMPP dari [https://www.apachefriends.org](https://www.apachefriends.org)
+2. Install XAMPP di `C:\xampp\` (Windows) atau `/opt/lampp/` (Linux)
+3. Jalankan XAMPP Control Panel
+4. Start **Apache** dan **MySQL**
+
+### Langkah 2: Download Project
+
+```bash
+# Clone atau download project ini
+git clone https://github.com/username/security-lab.git
+
+# Atau extract file ZIP ke folder htdocs
+```
+
+### Langkah 3: Copy Files ke htdocs
+
+```bash
+# Windows
+C:\xampp\htdocs\security-lab\
+
+# Linux
+/opt/lampp/htdocs/security-lab/
+```
+
+### Langkah 4: Import Database
+
+1. Buka phpMyAdmin: `http://localhost/phpmyadmin`
+2. Klik tab **"Import"**
+3. Pilih file **`database.sql`**
+4. Klik **"Go"** / **"Kirim"**
+
+**Atau via Command Line:**
+
+```bash
+# Windows
+cd C:\xampp\mysql\bin
+mysql -u root -p < C:\xampp\htdocs\security-lab\database.sql
+
+# Linux
+mysql -u root -p < /opt/lampp/htdocs/security-lab/database.sql
+```
+
+### Langkah 5: Konfigurasi Database (Opsional)
+
+Jika MySQL Anda menggunakan password, edit file `config.php`:
+
+```php
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', 'your_password_here'); // Ubah sesuai password MySQL Anda
+define('DB_NAME', 'security_lab');
+```
+
+### Langkah 6: Set Permissions (Linux Only)
+
+```bash
+sudo chmod 755 /opt/lampp/htdocs/security-lab
+sudo chmod 777 /opt/lampp/htdocs/security-lab/upload/uploads
+```
+
+### Langkah 7: Buat Folder Uploads
+
+```bash
+# Windows
+mkdir C:\xampp\htdocs\security-lab\upload\uploads
+
+# Linux
+mkdir -p /opt/lampp/htdocs/security-lab/upload/uploads
+chmod 777 /opt/lampp/htdocs/security-lab/upload/uploads
+```
+
+### Langkah 8: Akses Website
+
+Buka browser dan akses:
+
+```
+http://localhost/security-lab/
+```
+
+✅ **Instalasi Selesai!**
+
+---
+
+## 📁 Struktur Folder
+
+```
+security-lab/
+├── index.php                 # Homepage/Landing page
+├── config.php               # Konfigurasi database
+├── database.sql             # SQL dump untuk import
+├── README.md                # File ini
+│
+├── sqli/                    # SQL Injection Lab
+│   ├── login_vulnerable.php
+│   ├── login_safe.php
+│   └── dashboard.php
+│
+├── xss/                     # XSS Lab
+│   ├── comment_vulnerable.php
+│   ├── comment_safe.php
+│   └── view_comments.php
+│
+├── upload/                  # File Upload Lab
+│   ├── upload_vulnerable.php
+│   ├── upload_safe.php
+│   └── uploads/             # Folder untuk menyimpan file
+│
+├── bac/                     # Broken Access Control Lab
+│   ├── profile_vulnerable.php
+│   ├── profile_safe.php
+│   └── data.php
+│
+└── assets/
+    ├── css/
+    │   └── style.css        # Stylesheet utama
+    └── js/
+        └── script.js        # JavaScript utilities
+```
+
+---
+
+## 🎯 Penggunaan
+
+### 1. SQL Injection Lab
+
+**Testing Vulnerable Version:**
+```
+Username: admin' OR '1'='1
+Password: ' OR '1'='1
+```
+
+**Testing Safe Version:**
+```
+Username: alice
+Password: password
+```
+
+### 2. XSS Lab
+
+**Testing Vulnerable Version:**
+```html
+<script>alert('XSS Attack!')</script>
+<img src=x onerror=alert('XSS')>
+<svg onload=alert('XSS')>
+```
+
+**Testing Safe Version:**
+- Payload akan di-escape dan ditampilkan sebagai text
+
+### 3. File Upload Lab
+
+**Testing Vulnerable Version:**
+- Upload file: `shell.php`, `backdoor.phtml`, `virus.exe`
+
+**Testing Safe Version:**
+- Hanya accept: `jpg`, `jpeg`, `png`, `gif`, `pdf`, `doc`, `docx`
+
+### 4. Broken Access Control Lab
+
+**Testing Vulnerable Version:**
+```
+URL: profile_vulnerable.php?id=102
+URL: profile_vulnerable.php?id=103
+URL: profile_vulnerable.php?id=104
+```
+- Anda bisa akses data mahasiswa lain
+
+**Testing Safe Version:**
+```
+URL: profile_safe.php?id=102
+```
+- Access Denied jika bukan data sendiri
+
+---
+
+## 🔧 Troubleshooting
+
+### Error: "Access denied for user 'root'@'localhost'"
+
+**Solusi:**
+1. Buka phpMyAdmin
+2. Tab **"User accounts"**
+3. Edit user `root`
+4. Set password atau kosongkan password
+5. Update `config.php` sesuai password MySQL Anda
+
+### Error: "Table 'security_lab.users' doesn't exist"
+
+**Solusi:**
+1. Import ulang `database.sql`
+2. Pastikan database `security_lab` sudah dibuat
+3. Refresh phpMyAdmin
+
+### Error: "Failed to open stream: Permission denied"
+
+**Solusi (Linux):**
+```bash
+sudo chmod -R 755 /opt/lampp/htdocs/security-lab
+sudo chmod -R 777 /opt/lampp/htdocs/security-lab/upload/uploads
+```
+
+**Solusi (Windows):**
+1. Klik kanan folder `uploads`
+2. Properties → Security
+3. Edit → Add → Everyone
+4. Full Control → OK
+
+### File Upload Not Working
+
+**Solusi:**
+1. Pastikan folder `upload/uploads/` ada
+2. Set permission 777 (Linux) atau Full Control (Windows)
+3. Check `php.ini`:
+   ```ini
+   file_uploads = On
+   upload_max_filesize = 10M
+   post_max_size = 10M
+   ```
+
+### CSS/JS Not Loading
+
+**Solusi:**
+1. Check path di `index.php`: `assets/css/style.css`
+2. Clear browser cache (Ctrl+F5)
+3. Check Apache error log: `C:\xampp\apache\logs\error.log`
+
+---
+
+## 🔒 Keamanan & Etika
+
+⚠️ **PENTING - HANYA UNTUK EDUKASI:**
+
+1. **Jangan Deploy ke Internet** - Lab ini sengaja vulnerable!
+2. **Gunakan di Localhost Only** - Tidak untuk production
+3. **Jangan Test di Website Nyata** - Illegal & unethical
+4. **VM/Isolated Environment** - Gunakan virtual machine jika memungkinkan
+5. **Ethical Hacking Rules** - Ikuti code of ethics
+
+### Untuk Production:
+
+Jika Anda ingin deploy versi SAFE saja ke production:
+- Delete semua file `*_vulnerable.php`
+- Enable HTTPS (SSL/TLS)
+- Set strong MySQL password
+- Enable firewall (UFW/iptables)
+- Regular security updates
+- Implement rate limiting
+- Add CAPTCHA
+- Enable logging & monitoring
+
+---
+
+## 📚 Referensi
+
+- [OWASP Top 10 2021](https://owasp.org/www-project-top-ten/)
+- [OWASP SQL Injection](https://owasp.org/www-community/attacks/SQL_Injection)
+- [OWASP XSS](https://owasp.org/www-community/attacks/xss/)
+- [OWASP Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/)
+- [PHP Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/PHP_Configuration_Cheat_Sheet.html)
+
+---
+
+## 👨‍💻 Kredensial Default
+
+### Database Users (SQL Injection Lab)
+| Username | Password   | Role  |
+|----------|-----------|-------|
+| admin    | password  | admin |
+| alice    | password  | user  |
+| bob      | password  | user  |
+
+### Student Data (BAC Lab)
+| Student ID | Name           | Role       |
+|-----------|----------------|------------|
+| 101       | Alice Johnson  | Current User |
+| 102       | Bob Smith      | Other User   |
+| 103       | Charlie Brown  | Other User   |
+| 104       | Diana Prince   | Other User   |
+
+---
+
+## 🤝 Kontribusi
+
+Project ini dibuat untuk tujuan edukasi mata kuliah **Keamanan Data**.
+
+Jika menemukan bug atau ingin menambah fitur:
+1. Fork repository ini
+2. Buat branch baru (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buat Pull Request
+
+---
+
+## 📄 Lisensi
+
+Project ini dilisensikan untuk **Educational Purpose Only**.
+
+**Disclaimer:**
+- Tidak bertanggung jawab atas penyalahgunaan
+- Gunakan sesuai hukum yang berlaku
+- Hanya untuk pembelajaran di lingkungan terkontrol
+
+---
+
+## 📞 Kontak
+
+Jika ada pertanyaan:
+- **Email**: your.email@example.com
+- **GitHub**: [@yourusername](https://github.com/yourusername)
+
+---
+
+Made with ❤️ for Keamanan Data Course | © 2024
+
+**⚠️ USE RESPONSIBLY - EDUCATIONAL PURPOSE ONLY ⚠️**
